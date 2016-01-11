@@ -96,6 +96,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     charger_res_images
 
+# Dalvik/HWUI
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.heapminfree=2m
+
 # Filesystem
 PRODUCT_PACKAGES += \
     make_ext4fs \
