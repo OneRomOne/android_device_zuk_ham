@@ -53,6 +53,7 @@ BOARD_KERNEL_CMDLINE := console=tty60,115200,n8 androidboot.hardware=qcom user_d
 # The actual Chroma-kernel source is getting pulled via a local manifest
 TARGET_KERNEL_SOURCE := kernel/cyanogen/msm8974
 TARGET_KERNEL_CONFIG := cyanogenmod_k9_defconfig
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
 
 # Enable DIAG on debug builds
 ifneq ($(TARGET_BUILD_VARIANT),user)
