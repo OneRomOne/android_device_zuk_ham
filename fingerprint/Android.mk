@@ -49,7 +49,7 @@ LOCAL_STATIC_LIBRARIES := libreadline libhistory
 LOCAL_MODULE_TAGS := optional eng
 LOCAL_C_INCLUDES += external/bash/lib
 LOCAL_SRC_FILES := \
-     fpd_sm.c \
-     fpd_client.c \
-     test/fpd_sm_test_tool.c
+     fpd_sm.cpp \
+     fpd_client.cpp \
+     test/fpd_sm_test_tool.cpp
 include $(BUILD_EXECUTABLE)
