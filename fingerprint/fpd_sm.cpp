@@ -91,7 +91,7 @@ fpd_sm_state_t fpd_sm_get_state(fpd_sm_t *sm) {
 }
 
 fpd_sm_state_t fpd_sm_is_idle(fpd_sm_t *sm) {
-    return fpd_sm_get_state(sm) == FPD_SM_IDLE;
+    return (fpd_sm_state_t)(fpd_sm_get_state(sm) == FPD_SM_IDLE);
 }
 
 fpd_sm_status_t fpd_sm_destroy(fpd_sm_t *sm) {
@@ -228,26 +228,21 @@ fpd_sm_status_t fpd_sm_start_authenticating(fpd_sm_t *sm) {
 
     pthread_mutex_lock(&sm->state_mutex);
 
-    if (sm->state != FPD_SM_IDLE) {
+    if (sm->state == FPD_SM_IDLE) {
+        fpd_worker_args_t *args = (fpd_worker_args_t*) malloc(sizeof(fpd_worker_args_t));
+        if (args == NULL) {
+            fpd_sm_cache_enrolled_ids(sm);
+            args->sm = sm;
+            sm->state = FPD_SM_AUTHENTICATING;
+            sm->worker_state = FPD_WORKER_OK;
+            pthread_create(&sm->worker, NULL, authenticate_func, args);
+        } else {
+            result = FPD_SM_FAILED;
+        }
+    } else {
         result = FPD_SM_ERR_NOT_IDLE;
-        goto end;
     }
 
-    fpd_worker_args_t *args = (fpd_worker_args_t*) malloc(sizeof(fpd_worker_args_t));
-    if (args == NULL) {
-        result = FPD_SM_FAILED;
-        goto end;
-    }
-
-    fpd_sm_cache_enrolled_ids(sm);
-
-    args->sm = sm;
-
-    sm->state = FPD_SM_AUTHENTICATING;
-    sm->worker_state = FPD_WORKER_OK;
-    pthread_create(&sm->worker, NULL, authenticate_func, args);
-
-end:
     pthread_mutex_unlock(&sm->state_mutex);
     return result;
 }
