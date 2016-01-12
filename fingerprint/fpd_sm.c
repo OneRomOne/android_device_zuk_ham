@@ -154,8 +154,8 @@ static void fpd_sm_notify_acquired(fpd_sm_t *sm, fingerprint_acquired_info_t inf
 static void fpd_sm_notify_processed(fpd_sm_t *sm, int index) {
     fingerprint_msg_t msg;
     msg.type = FINGERPRINT_AUTHENTICATED;
-    msg.data.processed.finger.fid = index;
-    msg.data.processed.finger.gid = 0;
+    msg.data.authenticated.finger.fid = index;
+    msg.data.authenticated.finger.gid = 0;
 
     fpd_sm_notify(sm, msg);
 }
