@@ -23,9 +23,9 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_CFLAGS := -std=c99
 LOCAL_SRC_FILES := \
-     fpd_sm.c \
-     fpd_client.c \
-     fingerprint.c
+     fpd_sm.cpp \
+     fpd_client.cpp \
+     fingerprint.cpp
 
 include $(BUILD_SHARED_LIBRARY)
 
@@ -36,9 +36,9 @@ LOCAL_SHARED_LIBRARIES := liblog libcutils
 LOCAL_MODULE_TAGS := optional eng
 
 LOCAL_SRC_FILES := \
-     fpd_sm.c \
-     fpd_client.c \
-     test/fpd_client_test_tool.c
+     fpd_sm.cpp \
+     fpd_client.cpp \
+     test/fpd_client_test_tool.cpp
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
