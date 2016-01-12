@@ -135,10 +135,7 @@ static void fpd_sm_notify_enrolled(fpd_sm_t *sm, int index, int samples_remainin
     msg.type = FINGERPRINT_TEMPLATE_ENROLLING;
     msg.data.enroll.finger.fid = index;
     msg.data.enroll.finger.gid = 0;
-
-    // collected data no longer exists... but we can smuggle it out just for fun in the msg field.
-    //msg.data.enroll.data_collected_bmp = area;
-    msg.data.enroll.msg = area;
+    msg.data.enroll.msg = 0;
 
     msg.data.enroll.samples_remaining = samples_remaining;
 
