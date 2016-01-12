@@ -15,6 +15,8 @@
  */
 #include <cutils/log.h>
 #include <pthread.h>
+#include <malloc.h>
+#include <string.h>
 
 #include "fpd_sm.h"
 #include "fpd_client.h"
@@ -263,7 +265,7 @@ fpd_sm_status_t fpd_sm_cancel_authentication(fpd_sm_t *sm) {
 
     pthread_mutex_unlock(&sm->state_mutex);
 
-    return result;
+    return (fpd_sm_status_t)result;
 }
 
 static int has_timed_out(struct timespec *when) {
@@ -308,7 +310,7 @@ void *enroll_func(void *arg_enroll) {
         // TODO: Figure out what to do with the name,
         if (CMD_RESULT_OK == fpd_detect_finger_down()) {
           int finger = 0;
-          int result = fpd_enroll("fp", &finger, points);
+          int result = fpd_enroll((char *)"fp", &finger, points);
           if (result >= 0 && result <= 100) {
             if (result == 100) {
               // Always report 0 remaining steps when enrollment completes.
@@ -385,7 +387,7 @@ fpd_sm_status_t fpd_sm_cancel_enrollment(fpd_sm_t *sm) {
 
     pthread_mutex_unlock(&sm->state_mutex);
 
-    return result;
+    return (fpd_sm_status_t)result;
 }
 
 fpd_sm_status_t fpd_sm_get_enrolled_ids(fpd_sm_t *sm, fpd_enrolled_ids_t *enrolled) {
@@ -405,7 +407,7 @@ fpd_sm_status_t fpd_sm_get_enrolled_ids(fpd_sm_t *sm, fpd_enrolled_ids_t *enroll
 
 end:
     pthread_mutex_unlock(&sm->state_mutex);
-    return result;
+    return (fpd_sm_status_t)result;
 }
 
 fpd_sm_status_t fpd_sm_remove_id_locked(fpd_sm_t *sm, int id) {
@@ -439,5 +441,5 @@ fpd_sm_status_t fpd_sm_remove_id(fpd_sm_t *sm, int id) {
 
 end:
     pthread_mutex_unlock(&sm->state_mutex);
-    return result;
+    return (fpd_sm_status_t)result;
 }

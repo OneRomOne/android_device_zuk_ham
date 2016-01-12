@@ -22,6 +22,7 @@
 #include <sys/un.h>
 #include <sys/ioctl.h>
 #include <errno.h>
+#include <string.h>
 
 #include "fpd_client.h"
 

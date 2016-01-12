@@ -233,7 +233,7 @@ static int fingerprint_open(const hw_module_t* module, const char __unused *id,
         return -EINVAL;
     }
 
-    fpc1020_device_t *dev = malloc(sizeof(fpc1020_device_t));
+    fpc1020_device_t *dev = (fpc1020_device_t *)malloc(sizeof(fpc1020_device_t));
     if (dev == NULL) {
         return -ENOMEM;
     }
