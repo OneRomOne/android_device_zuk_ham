@@ -230,7 +230,7 @@ fpd_sm_status_t fpd_sm_start_authenticating(fpd_sm_t *sm) {
 
     if (sm->state == FPD_SM_IDLE) {
         fpd_worker_args_t *args = (fpd_worker_args_t*) malloc(sizeof(fpd_worker_args_t));
-        if (args == NULL) {
+        if (args != NULL) {
             fpd_sm_cache_enrolled_ids(sm);
             args->sm = sm;
             sm->state = FPD_SM_AUTHENTICATING;
@@ -335,36 +335,32 @@ fpd_sm_status_t fpd_sm_start_enrolling(fpd_sm_t *sm, uint32_t timeout_sec) {
 
     pthread_mutex_lock(&sm->state_mutex);
 
-    if (sm->state != FPD_SM_IDLE) {
+    if (sm->state == FPD_SM_IDLE) {
+		fpd_enrolled_ids_t enrolled;
+		if (fpd_get_enrolled_ids(&enrolled) == CMD_RESULT_OK) {
+			if (enrolled.id_num <= MAX_ID_NUM) {
+				fpd_sm_cache_enrolled_ids(sm);
+
+				sm->state = FPD_SM_ENROLLING;
+				sm->worker_state = FPD_WORKER_OK;
+
+				fpd_worker_args_t *args = (fpd_worker_args_t*) malloc(sizeof(fpd_worker_args_t));
+				args->sm = sm;
+				args->timeout_sec = timeout_sec;
+
+				pthread_create(&sm->worker, NULL, enroll_func, args);
+			} else {
+				result = FPD_SM_FAILED;
+				fpd_sm_notify_error(sm, FINGERPRINT_ERROR_NO_SPACE);
+			}
+		} else {
+			result = FPD_SM_FAILED;
+			fpd_sm_notify_error(sm, FINGERPRINT_ERROR_HW_UNAVAILABLE);
+		}
+    } else {
         result = FPD_SM_ERR_NOT_IDLE;
-        goto end;
     }
 
-    fpd_enrolled_ids_t enrolled;
-    if (fpd_get_enrolled_ids(&enrolled) != CMD_RESULT_OK) {
-        result = FPD_SM_FAILED;
-        fpd_sm_notify_error(sm, FINGERPRINT_ERROR_HW_UNAVAILABLE);
-        goto end;
-    }
-
-    if (enrolled.id_num > MAX_ID_NUM) {
-        result = FPD_SM_FAILED;
-        fpd_sm_notify_error(sm, FINGERPRINT_ERROR_NO_SPACE);
-        goto end;
-    }
-
-    fpd_sm_cache_enrolled_ids(sm);
-
-    sm->state = FPD_SM_ENROLLING;
-    sm->worker_state = FPD_WORKER_OK;
-
-    fpd_worker_args_t *args = (fpd_worker_args_t*) malloc(sizeof(fpd_worker_args_t));
-    args->sm = sm;
-    args->timeout_sec = timeout_sec;
-
-    pthread_create(&sm->worker, NULL, enroll_func, args);
-
-end:
     pthread_mutex_unlock(&sm->state_mutex);
     return result;
 }
@@ -389,18 +385,15 @@ fpd_sm_status_t fpd_sm_get_enrolled_ids(fpd_sm_t *sm, fpd_enrolled_ids_t *enroll
     int result = FPD_SM_OK;
 
     pthread_mutex_lock(&sm->state_mutex);
-    if (sm->state != FPD_SM_IDLE) {
+    if (sm->state == FPD_SM_IDLE) {
+		if (fpd_get_enrolled_ids(enrolled) != CMD_RESULT_OK) {
+			fpd_sm_notify_error(sm, FINGERPRINT_ERROR_HW_UNAVAILABLE);
+			result = FPD_SM_FAILED;
+		}
+    } else {
         memcpy(enrolled, &sm->cached_enrolled_ids, sizeof(fpd_enrolled_ids_t));
-        goto end;
     }
 
-    if (fpd_get_enrolled_ids(enrolled) != CMD_RESULT_OK) {
-        fpd_sm_notify_error(sm, FINGERPRINT_ERROR_HW_UNAVAILABLE);
-        result = FPD_SM_FAILED;
-        goto end;
-    }
-
-end:
     pthread_mutex_unlock(&sm->state_mutex);
     return (fpd_sm_status_t)result;
 }
@@ -419,22 +412,20 @@ fpd_sm_status_t fpd_sm_remove_id(fpd_sm_t *sm, int id) {
     pthread_mutex_lock(&sm->state_mutex);
 
     fpd_enrolled_ids_t enrolled;
-    if (fpd_get_enrolled_ids(&enrolled) != CMD_RESULT_OK) {
+    if (fpd_get_enrolled_ids(&enrolled) == CMD_RESULT_OK) {
+		for (int i = 0; i < enrolled.id_num; i++) {
+			if (id == 0 || id == enrolled.ids[i]) {
+				if (fpd_sm_remove_id_locked(sm, enrolled.ids[i]) != FPD_SM_OK) {
+					result = FPD_SM_FAILED;
+					break;
+				}
+			}
+		}
+    } else {
         fpd_sm_notify_error(sm, FINGERPRINT_ERROR_HW_UNAVAILABLE);
         result = FPD_SM_FAILED;
-        goto end;
     }
 
-    for (int i = 0; i < enrolled.id_num; i++) {
-        if (id == 0 || id == enrolled.ids[i]) {
-            if (fpd_sm_remove_id_locked(sm, enrolled.ids[i]) != FPD_SM_OK) {
-                result = FPD_SM_FAILED;
-                goto end;
-            }
-        }
-    }
-
-end:
     pthread_mutex_unlock(&sm->state_mutex);
     return (fpd_sm_status_t)result;
 }
