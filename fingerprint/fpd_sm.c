@@ -115,7 +115,7 @@ void fpd_sm_set_notify(fpd_sm_t *sm, fingerprint_notify_t notify) {
 static void fpd_sm_notify(fpd_sm_t *sm, fingerprint_msg_t msg) {
   pthread_mutex_lock(&sm->state_mutex);
   if (sm->notify != NULL) {
-    sm->notify(msg);
+    sm->notify(&msg);
   }
   pthread_mutex_unlock(&sm->state_mutex);
 }
@@ -131,8 +131,13 @@ static void fpd_sm_notify_error(fpd_sm_t *sm, fingerprint_error_t error) {
 static void fpd_sm_notify_enrolled(fpd_sm_t *sm, int index, int samples_remaining, uint16_t area) {
     fingerprint_msg_t msg;
     msg.type = FINGERPRINT_TEMPLATE_ENROLLING;
-    msg.data.enroll.id = index;
-    msg.data.enroll.data_collected_bmp = area;
+    msg.data.enroll.finger.fid = index;
+    msg.data.enroll.finger.gid = 0;
+
+    // collected data no longer exists... but we can smuggle it out just for fun in the msg field.
+    //msg.data.enroll.data_collected_bmp = area;
+    msg.data.enroll.msg = area;
+
     msg.data.enroll.samples_remaining = samples_remaining;
 
     fpd_sm_notify(sm, msg);
@@ -148,8 +153,9 @@ static void fpd_sm_notify_acquired(fpd_sm_t *sm, fingerprint_acquired_info_t inf
 
 static void fpd_sm_notify_processed(fpd_sm_t *sm, int index) {
     fingerprint_msg_t msg;
-    msg.type = FINGERPRINT_PROCESSED;
-    msg.data.processed.id = index;
+    msg.type = FINGERPRINT_AUTHENTICATED;
+    msg.data.processed.finger.fid = index;
+    msg.data.processed.finger.gid = 0;
 
     fpd_sm_notify(sm, msg);
 }
@@ -157,7 +163,8 @@ static void fpd_sm_notify_processed(fpd_sm_t *sm, int index) {
 static void fpd_sm_notify_removed(fpd_sm_t *sm, int index) {
     fingerprint_msg_t msg;
     msg.type = FINGERPRINT_TEMPLATE_REMOVED;
-    msg.data.removed.id = index;
+    msg.data.removed.finger.fid = index;
+    msg.data.removed.finger.gid = 0;
 
     fpd_sm_notify(sm, msg);
 }

@@ -66,6 +66,8 @@ static inline int fpd_result_to_hal(int result) {
 static int fingerprint_authenticate(struct fingerprint_device *dev,
                                     uint64_t operation_id,
                                     uint32_t gid) {
+    fpc1020_device_t *device = (fpc1020_device_t *)dev;
+
     ALOGI("fingerprint_authenticate");
     int ret = fpd_result_to_hal(fpd_sm_start_authenticating(g_fpd_sm));
     if (ret != 0) {
