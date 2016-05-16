@@ -4,7 +4,7 @@
     "target_path": "device/qcom/common"
   },
   {
-    "repository": "android_kernel_cyanogen_msm8974",
+    "repository": "Radioactive-kernel-HAM",
     "target_path": "kernel/cyanogen/msm8974"
   },
   {
