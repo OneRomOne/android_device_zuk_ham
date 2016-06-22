@@ -1,4 +1,4 @@
-# Copyright (C) 2015 The CyanogenMod Project
+# Copyright (C) 2016 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,13 +23,15 @@ $(call inherit-product, vendor/cm/config/common_full_phone.mk)
 
 PRODUCT_NAME := cm_ham
 PRODUCT_DEVICE := ham
-PRODUCT_MANUFACTURER := ZUK
-PRODUCT_MODEL := ZUK Z1
+PRODUCT_MANUFACTURER := Zuk
+PRODUCT_MODEL := Z1
 
 PRODUCT_GMS_CLIENTID_BASE := android-lenovo
 
-PRODUCT_BRAND := ZUK
+PRODUCT_BRAND := zuk
 TARGET_VENDOR := zuk
 TARGET_VENDOR_PRODUCT_NAME := ham
 TARGET_VENDOR_DEVICE_NAME := Z1
 PRODUCT_BUILD_PROP_OVERRIDES += TARGET_DEVICE=Z1 PRODUCT_NAME=ham
+
+TARGET_UNOFFICIAL_BUILD_ID := MrColdbird

@@ -1,8 +1,9 @@
 #
 # system.prop for ham
 #
-
-ro.sf.lcd_density=480
+ro.secure=0
+ro.adb.secure=0
+ro.sf.lcd_density=400
 rild.libpath=/system/vendor/lib/libril-qc-qmi-1.so
 persist.radio.add_power_save=1
 persist.radio.apm_sim_not_pwdn=1
@@ -23,12 +24,8 @@ ro.qti.sensors.pick_up=false
 ro.qti.sensors.tilt_detector=true
 ro.qti.sensors.scrn_ortn=true
 
-# dpm / cne
-persist.cne.feature=1
-persist.dpm.feature=3
-
 # gps
-persist.gps.qc_nlp_in_use=1
+persist.gps.qc_nlp_in_use=0
 ro.gps.agps_provider=1
 
 # cabl is handled by the panel
@@ -41,4 +38,38 @@ ro.ril.em_redial_vt_failover=true
 ro.frp.pst=/dev/block/bootdevice/by-name/frp
 
 # Properties from ham.mk
+mm.enable.smoothstreaming=true
+audio.offload.buffer.size.kb=32
+audio.offload.video=false
+av.streaming.offload.enable=false
+use.voice.path.for.pcm.voip=true
+audio.offload.multiple.enabled=false
+media.aac_51_output_enabled=true
+audio.offload.pcm.16bit.enable=true
+audio.offload.pcm.24bit.enable=true
+audio.deep_buffer.media=true
+bluetooth.hfp.client=1
+camera2.portability.force_api=1
+persist.hwc.mdpcomp.enable=true
+persist.timed.enable=true
+ro.opengles.version=196608
+ro.qualcomm.bt.hci_transport=smd
+ro.telephony.default_network=9
+ro.use_data_netmgrd=true
+persist.data.netmgrd.qos.enable=true
+persist.data.tcpackprio.enable=true
+ro.data.large_tcp_window_size=true
+telephony.lteOnCdmaDevice=1
+wifi.interface=wlan0
+wifi.supplicant_scan_interval=15
+ro.qualcomm.perf.cores_online=2
+ro.vendor.extension_library=libqti-perfd-client.so
+ro.telephony.call_ring.multiple=0
 persist.camera.4k2k.enable=1
+
+# OTA Server URL
+cm.updater.uri=http://download.ambriel.net/cyanogenmod/api
+
+# Assertive Display
+ro.qcom.ad=1
+ro.qcom.ad.calib.data=/system/etc/ad_calib.cfg
