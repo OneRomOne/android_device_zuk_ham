@@ -93,13 +93,15 @@ PRODUCT_PACKAGES += \
     make_ext4fs \
     setup_fs
 
-# Fingerprint
-PRODUCT_PACKAGES += \
-    fingerprintd
 
 # Gello
 PRODUCT_PACKAGES += \
     Gello
+
+# Fingerprint
+PRODUCT_PACKAGES += \
+    fingerprint.msm8974 \
+    fingerprintd
 
 # Graphics
 PRODUCT_PACKAGES += \
