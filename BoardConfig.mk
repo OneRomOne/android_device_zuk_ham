@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 The CyanogenMod Project
+# Copyright (C) 2015 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
 # limitations under the License.
 #
 
+DEVICE_PATH := device/zuk/ham
+
 # TODO: shouldn't be here
 BOARD_VENDOR := zuk
 
 #Include path
-TARGET_SPECIFIC_HEADER_PATH += device/zuk/ham/include
+TARGET_SPECIFIC_HEADER_PATH += $(DEVICE_PATH)/include
 
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := MSM8974
@@ -41,31 +43,24 @@ ARCH_ARM_HAVE_TLS_REGISTER := true
 # Kernel
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 2048
-BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x01e00000
-BOARD_DTBTOOL_ARGS := -2
 BOARD_KERNEL_SEPARATED_DT := true
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01000000 --tags_offset 0x00000100
+BOARD_DTBTOOL_ARGS := -2
 TARGET_KERNEL_ARCH := arm
 BOARD_KERNEL_CMDLINE := console=tty60,115200,n8 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x3b7 ehci-hcd.park=3 androidboot.bootdevice=msm_sdcc.1 vmalloc=480M
 TARGET_KERNEL_SOURCE := kernel/cyanogen/msm8974
-TARGET_KERNEL_CONFIG := radioactive_defconfig
-#TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
+TARGET_KERNEL_CONFIG := cyanogenmod_k9_defconfig
 
 # Enable DIAG on debug builds
 ifneq ($(TARGET_BUILD_VARIANT),user)
 TARGET_KERNEL_ADDITIONAL_CONFIG:= cyanogenmod_debug_config
 endif
 
-# DT2W
-TARGET_TAP_TO_WAKE_NODE := "/sys/devices/virtual/touch/tp_dev/gesture_on"
-
-# QCOM Power (required for DT2W)
-TARGET_POWERHAL_VARIANT := qcom
-
 # QCOM
 BOARD_USES_QCOM_HARDWARE := true
-BOARD_USES_CYANOGEN_HARDWARE := true
 
 # Audio
+USE_CUSTOM_AUDIO_POLICY := 1
 BOARD_USES_ALSA_AUDIO := true
 AUDIO_FEATURE_ENABLED_MULTI_VOICE_SESSIONS := true
 AUDIO_FEATURE_ENABLED_HWDEP_CAL := true
@@ -76,14 +71,23 @@ BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_QCOM := true
 QCOM_BT_USE_SMD_TTY := true
 BLUETOOTH_HCI_USE_MCT := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/zuk/ham/bluetooth
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(DEVICE_PATH)/bluetooth
 
 # Camera
 TARGET_USE_VENDOR_CAMERA_EXT := true
 USE_DEVICE_SPECIFIC_CAMERA := true
 
+# Charger
+BOARD_CHARGER_DISABLE_INIT_BLANK := true
+
 # CM Hardware
-BOARD_HARDWARE_CLASS += device/zuk/ham/cmhw
+BOARD_USES_CYANOGEN_HARDWARE := true
+BOARD_HARDWARE_CLASS := \
+    hardware/cyanogen/cmhw \
+    $(DEVICE_PATH)/cmhw
+
+# Tap to wake
+TARGET_TAP_TO_WAKE_NODE := /sys/devices/virtual/touch/tp_dev/gesture_on
 
 # Filesystem
 BOARD_BOOTIMAGE_PARTITION_SIZE     := 20971520
@@ -96,19 +100,14 @@ BOARD_USERDATAEXTRAIMAGE_PARTITION_SIZE := 59718467072
 BOARD_USERDATAEXTRAIMAGE_PARTITION_NAME := 64G
 BOARD_OEMIMAGE_PARTITION_SIZE      := 133169152
 
-# GPS
-USE_DEVICE_SPECIFIC_LOC_API := true
-USE_DEVICE_SPECIFIC_GPS := true
-
 # Graphics
-BOARD_EGL_CFG := device/zuk/ham/configs/egl.cfg
 USE_OPENGL_RENDERER := true
 TARGET_CONTINUOUS_SPLASH_ENABLED := true
+TARGET_USES_C2D_COMPOSITION := true
 TARGET_USES_ION := true
 OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
-VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
-SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
-TARGET_USE_COMPAT_GRALLOC_PERFORM := true
+HAVE_ADRENO_SOURCE:= false
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 
 # Shader cache config options
 # Maximum size of the  GLES Shaders that can be cached for reuse.
@@ -153,25 +152,30 @@ TARGET_PROVIDES_LIBLIGHT := true
 TARGET_NO_RPC := true
 
 # GPS HAL lives here
-TARGET_GPS_HAL_PATH := device/zuk/ham/gps
-TARGET_PROVIDES_GPS_LOC_API := true
+USE_DEVICE_SPECIFIC_GPS := true
+USE_DEVICE_SPECIFIC_LOC_API := true
+
+# PowerHAL
+TARGET_POWERHAL_VARIANT := qcom
 
 # QCRIL
 TARGET_RIL_VARIANT := caf
 
 # Recovery
-TARGET_RECOVERY_FSTAB := device/zuk/ham/rootdir/etc/fstab.qcom
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/etc/fstab.qcom
 
 # Releasetools
-TARGET_RELEASETOOLS_EXTENSIONS := device/zuk/ham
+TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
 
 # Use HW crypto for ODE
 TARGET_HW_DISK_ENCRYPTION := true
 
+# Added to indicate that protobuf-c is supported in this build
+PROTOBUF_SUPPORTED := true
+
 # ANT+ - TODO: Confirm this - TODO: Confirm this - TODO: Confirm this - TODO: Confirm this
 BOARD_ANT_WIRELESS_DEVICE := "vfs-prerelease"
 
-# Enable dexpreopt to reduce first boot time
 ifeq ($(HOST_OS),linux)
   ifeq ($(call match-word-in-list,$(TARGET_BUILD_VARIANT),user),true)
     ifeq ($(WITH_DEXPREOPT),)
@@ -180,35 +184,22 @@ ifeq ($(HOST_OS),linux)
   endif
 endif
 
-# inherit from QC proprietary
+# inherit from the proprietary version
 ifneq ($(QCPATH),)
 -include $(QCPATH)/common/msm8974/BoardConfigVendor.mk
+endif
 
-# QCNE
+BOARD_USES_QCNE := true
+
 ifeq ($(BOARD_USES_QCNE),true)
 TARGET_LDPRELOAD := libNimsWrap.so
 endif
-endif
-
-# TWRP
-DEVICE_RESOLUTION := 1080x1920
-RECOVERY_GRAPHICS_USE_LINELENGTH := true
-RECOVERY_SDCARD_ON_DATA := true
-BOARD_HAS_NO_REAL_SDCARD := true
-TW_TARGET_USES_QCOM_BSP := true
-TW_NO_USB_STORAGE := true
-TW_INCLUDE_CRYPTO := true
-BOARD_SUPPRESS_SECURE_ERASE := true
-TARGET_RECOVERY_PIXEL_FORMAT := "RGB_565"
-TARGET_USERIMAGES_USE_F2FS := true
-
-PRODUCT_COPY_FILES += device/zuk/ham/twrp.fstab:recovery/root/etc/twrp.fstab
 
 # SELinux policies
 # qcom sepolicy
 include device/qcom/sepolicy/sepolicy.mk
 
 BOARD_SEPOLICY_DIRS += \
-    device/zuk/ham/sepolicy
+    $(DEVICE_PATH)/sepolicy
 
 -include vendor/zuk/ham/BoardConfigVendor.mk
