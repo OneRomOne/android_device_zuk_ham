@@ -178,6 +178,9 @@ etc/firmware/venus.mdt
 -vendor/lib/libsmemlog.so
 -vendor/lib/libsystem_health_mon.so
 
+# Quick Charge
+-bin/hvdcp
+
 # Radio
 +priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk
 +priv-app/QtiTetherService/QtiTetherService.apk

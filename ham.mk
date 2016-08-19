@@ -19,7 +19,7 @@ $(call inherit-product-if-exists, $(QCPATH)/common/config/device-vendor.mk)
 endif
 
 # Set CM_BUILDTYPE
-CM_BUILDTYPE := NIGHTLY
+CM_BUILDTYPE := STABLE
 
 ADD_RADIO_FILES ?= true
 TARGET_RELEASETOOLS_EXTENSIONS := device/zuk/ham
@@ -89,10 +89,14 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     charger_res_images
 
+# Enable Quick Charge 2.0
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
+    persist.usb.hvdcp.detect=true
+	
 # Fingerprint
 PRODUCT_PACKAGES += \
     fingerprintd
-
+	
 # Gello
 PRODUCT_PACKAGES += \
     Gello
@@ -167,10 +171,6 @@ PRODUCT_COPY_FILES += \
 # Keystore
 PRODUCT_PACKAGES += \
     keystore.msm8974
-
-# Thermal
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/thermal-engine.conf:system/etc/thermal-engine-8974.conf
 
 # WiFi
 PRODUCT_COPY_FILES += \

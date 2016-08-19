@@ -186,26 +186,42 @@ on boot
     write /proc/sys/kernel/printk "6 6 1 7"
 
     # Fingerprint
-    chown system system /sys/bus/spi/devices/spi4.0/setup/irq
-    chown system system /sys/bus/spi/devices/spi4.0/setup/enable_navi
-    chown system system /sys/bus/spi/devices/spi4.0/setup/key
-    chown system system /sys/bus/spi/devices/spi4.0/setup/wakeup
-    chmod 0664 /sys/bus/spi/devices/spi4.0/setup/wakeup
-    chmod 0664 /sys/bus/spi/devices/spi4.0/setup/enable_navi
-    chmod 0664 /sys/bus/spi/devices/spi4.0/setup/irq
-    chmod 0664 /sys/bus/spi/devices/spi4.0/setup/key
+    chown system system /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/enable_navi
+    chown system system /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/hw_reset
+    chown system system /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/irq
+    chown system system /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/key
+    chown system system /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/wakeup
+    chmod 0666 /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/enable_navi
+    chmod 0666 /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/hw_reset
+    chmod 0666 /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/irq
+    chmod 0666 /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/key
+    chmod 0666 /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/wakeup
     write /sys/devices/f9927000.spi/spi_master/spi4/spi4.0/setup/wakeup 1
     write /sys/deviceS/f9927000.spi/spi_master/spi4/spi4.0/setup/enable_navi 1
-
-on boot
-    chown system system /dev/fpc1020
-    chmod 660 /dev/fpc1020
 
     # Lights
     chown system system /sys/class/leds/button-backlight/brightness
     chown system system /sys/class/leds/button-backlight2/brightness
     chown system system /sys/class/leds/torch-light1/brightness
-
+    
+	# KCAL
+    write /sys/devices/platform/kcal_ctrl.0/kcal "235 233 256"
+    write /sys/devices/platform/kcal_ctrl.0/kcal_min 35 
+    write /sys/devices/platform/kcal_ctrl.0/kcal_enable 1
+    write /sys/devices/platform/kcal_ctrl.0/kcal_invert 0
+    write /sys/devices/platform/kcal_ctrl.0/kcal_sat 243
+    write /sys/devices/platform/kcal_ctrl.0/kcal_hue 1515
+    write /sys/devices/platform/kcal_ctrl.0/kcal_val 250
+    write /sys/devices/platform/kcal_ctrl.0/kcal_cont 255
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_min
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_enable
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_invert
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_sat
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_hue
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_val
+    chown system system /sys/devices/platform/kcal_ctrl.0/kcal_cont
+	
     # RGB
     chown system system /sys/class/leds/led:rgb_red/brightness
     chown system system /sys/class/leds/led:rgb_red/duty_pcts
@@ -304,8 +320,8 @@ on post-fs-data
     mkdir /data/audio/ 0770 media audio
 
     # Touchscreen
-    chown system system /sys/devices/virtual/touch/tp_dev/gesture_on
-	chmod 0664 /sys/devices/virtual/touch/tp_dev/gesture_on
+    chown system radio /sys/devices/virtual/touch/tp_dev/gesture_on
+    chmod 0664 /sys/devices/virtual/touch/tp_dev/gesture_on
 
     chown system system /sys/devices/virtual/graphics/fb0/aco
     chmod 0660 /sys/devices/virtual/graphics/fb0/aco
@@ -533,13 +549,10 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
     user camera
     group camera system inet input graphics
 
-service thermal-engine /system/vendor/bin/thermal-engine
+service mpdecision /system/bin/mpdecision --avg_comp
    class main
    user root
-   group root
-   socket thermal-send-client stream 0666 system system
-   socket thermal-recv-client stream 0660 system system
-   socket thermal-recv-passive-client stream 0666 system system
+   group system
 
 service time_daemon /system/bin/time_daemon
    class late_start

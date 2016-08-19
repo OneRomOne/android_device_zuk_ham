@@ -133,7 +133,7 @@ ifeq (\$(TARGET_DEVICE),ham)
 
 ifeq (\$(QCPATH),)
 include \$(CLEAR_VARS)
-LOCAL_MODULE := com.qualcomm.location
+LOCAL_MODULE := CNEService
 LOCAL_MODULE_OWNER := $VENDOR
 LOCAL_SRC_FILES := proprietary/priv-app/CNEService/CNEService.apk
 LOCAL_MODULE_TAGS := optional
