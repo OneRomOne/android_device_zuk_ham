@@ -1,0 +1,14 @@
+[
+  {
+    "repository": "android_device_qcom_common",
+    "target_path": "device/qcom/common"
+  },
+  {
+    "repository": "Radioactive-kernel-HAM",
+    "target_path": "kernel/cyanogen/msm8974"
+  },
+  {
+    "repository": "proprietary_vendor_zuk",
+    "target_path": "vendor/zuk"
+  }
+]

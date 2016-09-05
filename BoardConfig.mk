@@ -45,13 +45,10 @@ BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x01e00000
 BOARD_DTBTOOL_ARGS := -2
 BOARD_KERNEL_SEPARATED_DT := true
 TARGET_KERNEL_ARCH := arm
-BOARD_KERNEL_CMDLINE := console=tty60,115200,n8 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x3b7 ehci-hcd.park=3 androidboot.bootdevice=msm_sdcc.1 vmalloc=480M androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE := console=tty60,115200,n8 androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x3b7 ehci-hcd.park=3 androidboot.bootdevice=msm_sdcc.1 vmalloc=480M
 TARGET_KERNEL_SOURCE := kernel/cyanogen/msm8974
-TARGET_KERNEL_CONFIG := chroma_defconfig
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
-
-# ANT+
-BOARD_ANT_WIRELESS_DEVICE := "vfs-prerelease"
+TARGET_KERNEL_CONFIG := cyanogenmod_k9_defconfig
+#TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
 
 # Enable DIAG on debug builds
 ifneq ($(TARGET_BUILD_VARIANT),user)
@@ -85,7 +82,6 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/zuk/ham/bluetooth
 # Camera
 TARGET_USE_VENDOR_CAMERA_EXT := true
 USE_DEVICE_SPECIFIC_CAMERA := true
-TARGET_USE_COMPAT_GRALLOC_ALIGN := true
 
 # CM Hardware
 BOARD_HARDWARE_CLASS += device/zuk/ham/cmhw
@@ -100,25 +96,31 @@ BOARD_USERDATAIMAGE_PARTITION_SIZE := 12815659008
 BOARD_USERDATAEXTRAIMAGE_PARTITION_SIZE := 59718467072
 BOARD_USERDATAEXTRAIMAGE_PARTITION_NAME := 64G
 BOARD_OEMIMAGE_PARTITION_SIZE      := 133169152
-TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_USERIMAGES_USE_F2FS := true
-BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_PERSISTIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_OEMIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_FLASH_BLOCK_SIZE := 131072
 
 # GPS
+BOARD_VENDOR_QCOM_LOC_PDK_FEATURE_SET := true
 USE_DEVICE_SPECIFIC_GPS := true
 USE_DEVICE_SPECIFIC_LOC_API := true
 
 # Graphics
-MAX_EGL_CACHE_KEY_SIZE := 12*1024
-MAX_EGL_CACHE_SIZE := 2048*1024
-OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
+BOARD_EGL_CFG := device/zuk/ham/configs/egl.cfg
+USE_OPENGL_RENDERER := true
 TARGET_CONTINUOUS_SPLASH_ENABLED := true
 TARGET_USES_ION := true
-USE_OPENGL_RENDERER := true
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
+VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
+SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
+TARGET_USE_COMPAT_GRALLOC_PERFORM := true
+
+# Shader cache config options
+# Maximum size of the  GLES Shaders that can be cached for reuse.
+# Increase the size if shaders of size greater than 12KB are used.
+MAX_EGL_CACHE_KEY_SIZE := 12*1024
+
+# Maximum GLES shader cache size for each app to store the compiled shader
+# binaries. Decrease the size if RAM or Flash Storage size is a limitation
+# of the device.
+MAX_EGL_CACHE_SIZE := 2048*1024
 
 # Wifi
 BOARD_HAS_QCOM_WLAN              := true
@@ -139,17 +141,24 @@ TARGET_USES_WCNSS_MAC_ADDR_REV   := true
 CONFIG_EAP_PROXY                 := qmi
 CONFIG_EAP_PROXY_DUAL_SIM        := true
 
+# Filesystem
+TARGET_USERIMAGES_USE_EXT4 := true
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_PERSISTIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_OEMIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_FLASH_BLOCK_SIZE := 131072
+
 # Lights
 TARGET_PROVIDES_LIBLIGHT := true
 
-# RPC 
+# No old RPC for prop
 TARGET_NO_RPC := true
 
-# GPS
+# GPS HAL lives here
 TARGET_GPS_HAL_PATH := device/zuk/ham/gps
 TARGET_PROVIDES_GPS_LOC_API := true
 
-# Radio
+# QCRIL
 TARGET_RIL_VARIANT := caf
 
 # Recovery
@@ -158,8 +167,11 @@ TARGET_RECOVERY_FSTAB := device/zuk/ham/rootdir/etc/fstab.qcom
 # Releasetools
 TARGET_RELEASETOOLS_EXTENSIONS := device/zuk/ham
 
-# ENCRYPTION
+# Use HW crypto for ODE
 TARGET_HW_DISK_ENCRYPTION := true
+
+# ANT+ - TODO: Confirm this - TODO: Confirm this - TODO: Confirm this - TODO: Confirm this
+BOARD_ANT_WIRELESS_DEVICE := "vfs-prerelease"
 
 # Enable dexpreopt to reduce first boot time
 ifeq ($(HOST_OS),linux)
@@ -173,13 +185,11 @@ endif
 # inherit from QC proprietary
 ifneq ($(QCPATH),)
 -include $(QCPATH)/common/msm8974/BoardConfigVendor.mk
-endif
-
-BOARD_USES_QCNE := true
 
 # QCNE
 ifeq ($(BOARD_USES_QCNE),true)
 TARGET_LDPRELOAD := libNimsWrap.so
+endif
 endif
 
 # TWRP
@@ -204,3 +214,22 @@ BOARD_SEPOLICY_DIRS += \
     device/zuk/ham/sepolicy
 
 -include vendor/zuk/ham/BoardConfigVendor.mk
+
+# Kernel Toolchain
+KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-eabi-4.8/bin
+# KERNEL_TOOLCHAIN_PREFIX := aarch64-linux-android-
+
+# Optimizations
+STRICT_ALIASING := false
+CLANG_O3 := true
+ENABLE_GCCONLY := false
+GRAPHITE_OPTS := true
+USE_PIPE := true  
+ENABLE_SANITIZE := true
+CORTEX_TUNINGS := true
+POLLY_OPTIMIZATION := true
+ENABLE_PTHREAD := true
+ENABLE_IPA_ANALYSER := true
+ENABLE_GOMP := true
+ENABLE_EXTRAGCC := true
+
